@@ -20,23 +20,6 @@ class Buttons extends ConsumerWidget {
           children: [
             GestureDetector(
               onTapDown: (x) {
-                ref.read(directionProvider.notifier).state = -1;
-                ref.read(flippedProvider.notifier).state = true;
-              },
-              onTapCancel: () {
-                ref.read(directionProvider.notifier).state = 0;
-              },
-              onTapUp: (x) {
-                ref.read(directionProvider.notifier).state = 0;
-              },
-              child: Icon(
-                Icons.arrow_back_rounded,
-                size: 50,
-                color: tappedButton != -1 ? Colors.white : Colors.blue,
-              ),
-            ),
-            GestureDetector(
-              onTapDown: (x) {
                 ref.read(directionProvider.notifier).state = 1;
                 ref.read(flippedProvider.notifier).state = false;
               },
