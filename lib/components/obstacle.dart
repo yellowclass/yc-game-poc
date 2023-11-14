@@ -5,14 +5,16 @@ import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:yc_game_poc/constants/images.dart';
 
-import '../pages/game.dart';
+import '../models/game_model.dart';
+import 'game_builder.dart';
 
-class Obstacle extends SpriteAnimationComponent
-    with HasGameRef<TryGame>, CollisionCallbacks {
+class GameObstacle extends SpriteAnimationComponent
+    with HasGameRef<GameBuilder>, CollisionCallbacks {
   final WidgetRef ref;
+  final Obstacle obstacle;
 
-  Obstacle({required this.ref}) : super() {
-    // debugMode = true;
+  GameObstacle({required this.ref, required this.obstacle}) : super() {
+    debugMode = true;
   }
 
   final networkImages = FlameNetworkImages();
@@ -27,27 +29,30 @@ class Obstacle extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
-    SpriteSheet spriteRun = SpriteSheet(
-        image: await networkImages.load(ImagesWizard.run),
-        srcSize: Vector2(128, 128));
-    SpriteSheet spriteIdle = SpriteSheet(
-        image: await networkImages.load(ImagesWizard.idle),
-        srcSize: Vector2(128, 128));
-    SpriteSheet spriteWalk = SpriteSheet(
-        image: await networkImages.load(ImagesWizard.walk),
-        srcSize: Vector2(128, 128));
-    animationIdle = spriteIdle.createAnimation(row: 0, stepTime: 0.1);
-    animationRun = spriteRun.createAnimation(row: 0, stepTime: 0.1);
-    animationWalk = spriteWalk.createAnimation(row: 0, stepTime: 0.1);
-    // animation = animationIdle;
+    animationRun = SpriteSheet(
+            image: await networkImages.load(obstacle.sprites.run.url),
+            srcSize: Vector2(obstacle.sprites.run.spriteSectionSize[0],
+                obstacle.sprites.run.spriteSectionSize[1]))
+        .createAnimation(row: 0, stepTime: obstacle.sprites.run.stepTime);
+    animationIdle = SpriteSheet(
+            image: await networkImages.load(obstacle.sprites.idle.url),
+            srcSize: Vector2(obstacle.sprites.idle.spriteSectionSize[0],
+                obstacle.sprites.idle.spriteSectionSize[1]))
+        .createAnimation(row: 0, stepTime: obstacle.sprites.idle.stepTime);
+    animationWalk = SpriteSheet(
+            image: await networkImages.load(obstacle.sprites.walk.url),
+            srcSize: Vector2(obstacle.sprites.walk.spriteSectionSize[0],
+                obstacle.sprites.walk.spriteSectionSize[1]))
+        .createAnimation(row: 0, stepTime: obstacle.sprites.walk.stepTime);
+
     animation = animationWalk;
-    position = Vector2(500, 110);
-    size = Vector2.all(200);
-    // flipHorizontallyAroundCenter();
+    position = Vector2(obstacle.position[0], obstacle.position[1]);
+    size = Vector2(obstacle.size[0], obstacle.size[1]);
+
     add(RectangleHitbox.relative(
-      Vector2(0.5, 0.6),
-      parentSize: size, position: Vector2(size.y / 4, size.y / 2.5),
-      // anchor: Anchor.bottomCenter
+      Vector2(obstacle.hitboxRelation[0], obstacle.hitboxRelation[1]),
+      parentSize: size,
+      position: Vector2(size.x / obstacle.hitboxSizeDivider[0], size.y / obstacle.hitboxSizeDivider[1]),
     ));
   }
 
@@ -60,6 +65,7 @@ class Obstacle extends SpriteAnimationComponent
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     flipHorizontallyAroundCenter();
+    print(obstacle.collisionMessage);
     super.onCollisionStart(intersectionPoints, other);
   }
 

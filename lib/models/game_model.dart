@@ -1,8 +1,3 @@
-// To parse this JSON data, do
-//
-//     final gameModel = gameModelFromJson(jsonString);
-
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 GameModel gameModelFromJson(String str) => GameModel.fromJson(json.decode(str));
@@ -10,10 +5,10 @@ GameModel gameModelFromJson(String str) => GameModel.fromJson(json.decode(str));
 String gameModelToJson(GameModel data) => json.encode(data.toJson());
 
 class GameModel {
-  final String background;
-  final Parallax parallax;
-  final Player player;
-  final List<Obstacle> obstacles;
+  String background;
+  Parallax parallax;
+  Player player;
+  List<Obstacle> obstacles;
 
   GameModel({
     required this.background,
@@ -38,17 +33,15 @@ class GameModel {
 }
 
 class Obstacle {
-  final SpriteUrl spriteUrl;
-  final List<int> spriteSectionSize;
-  final List<int> position;
-  final List<int> size;
-  final List<double> hitboxRelation;
-  final List<double> hitboxSizeDivider;
-  final String collisionMessage;
+  Sprites sprites;
+  List<double> position;
+  List<double> size;
+  List<double> hitboxRelation;
+  List<double> hitboxSizeDivider;
+  String collisionMessage;
 
   Obstacle({
-    required this.spriteUrl,
-    required this.spriteSectionSize,
+    required this.sprites,
     required this.position,
     required this.size,
     required this.hitboxRelation,
@@ -57,18 +50,16 @@ class Obstacle {
   });
 
   factory Obstacle.fromJson(Map<String, dynamic> json) => Obstacle(
-    spriteUrl: SpriteUrl.fromJson(json["spriteUrl"]),
-    spriteSectionSize: List<int>.from(json["spriteSectionSize"].map((x) => x)),
-    position: List<int>.from(json["position"].map((x) => x)),
-    size: List<int>.from(json["size"].map((x) => x)),
+    sprites: Sprites.fromJson(json["sprites"]),
+    position: List<double>.from(json["position"].map((x) => x)),
+    size: List<double>.from(json["size"].map((x) => x)),
     hitboxRelation: List<double>.from(json["hitboxRelation"].map((x) => x?.toDouble())),
     hitboxSizeDivider: List<double>.from(json["hitboxSizeDivider"].map((x) => x?.toDouble())),
     collisionMessage: json["collisionMessage"],
   );
 
   Map<String, dynamic> toJson() => {
-    "spriteUrl": spriteUrl.toJson(),
-    "spriteSectionSize": List<dynamic>.from(spriteSectionSize.map((x) => x)),
+    "sprites": sprites.toJson(),
     "position": List<dynamic>.from(position.map((x) => x)),
     "size": List<dynamic>.from(size.map((x) => x)),
     "hitboxRelation": List<dynamic>.from(hitboxRelation.map((x) => x)),
@@ -77,34 +68,62 @@ class Obstacle {
   };
 }
 
-class SpriteUrl {
-  final String run;
-  final String idle;
-  final String walk;
+class Sprites {
+  SpriteModel run;
+  SpriteModel idle;
+  SpriteModel walk;
 
-  SpriteUrl({
+  Sprites({
     required this.run,
     required this.idle,
     required this.walk,
   });
 
-  factory SpriteUrl.fromJson(Map<String, dynamic> json) => SpriteUrl(
-    run: json["run"],
-    idle: json["idle"],
-    walk: json["walk"],
+  factory Sprites.fromJson(Map<String, dynamic> json) => Sprites(
+    run: SpriteModel.fromJson(json["run"]),
+    idle: SpriteModel.fromJson(json["idle"]),
+    walk: SpriteModel.fromJson(json["walk"]),
   );
 
   Map<String, dynamic> toJson() => {
-    "run": run,
-    "idle": idle,
-    "walk": walk,
+    "run": run.toJson(),
+    "idle": idle.toJson(),
+    "walk": walk.toJson(),
+  };
+}
+
+class SpriteModel {
+  String url;
+  List<double> spriteSectionSize;
+  int row;
+  double stepTime;
+
+  SpriteModel({
+    required this.url,
+    required this.spriteSectionSize,
+    required this.row,
+    required this.stepTime,
+  });
+
+  factory SpriteModel.fromJson(Map<String, dynamic> json) => SpriteModel(
+    url: json["url"],
+    spriteSectionSize: List<double>.from(json["spriteSectionSize"].map((x) => x)),
+    row: json["row"],
+    stepTime: json["stepTime"]?.toDouble(),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "url": url,
+    "spriteSectionSize": List<dynamic>.from(spriteSectionSize.map((x) => x)),
+    "row": row,
+    "stepTime": stepTime,
   };
 }
 
 class Parallax {
-  final List<String> layers;
-  final List<int> baseVelocity;
-  final List<double> velocityMultiplier;
+  List<String> layers;
+  List<double> baseVelocity;
+  List<double> velocityMultiplier;
 
   Parallax({
     required this.layers,
@@ -114,7 +133,7 @@ class Parallax {
 
   factory Parallax.fromJson(Map<String, dynamic> json) => Parallax(
     layers: List<String>.from(json["layers"].map((x) => x)),
-    baseVelocity: List<int>.from(json["baseVelocity"].map((x) => x)),
+    baseVelocity: List<double>.from(json["baseVelocity"].map((x) => x)),
     velocityMultiplier: List<double>.from(json["velocityMultiplier"].map((x) => x?.toDouble())),
   );
 
@@ -126,19 +145,17 @@ class Parallax {
 }
 
 class Player {
-  final SpriteUrl spriteUrl;
-  final List<int> spriteSectionSize;
-  final List<int> position;
-  final List<int> size;
-  final List<double> hitboxRelation;
-  final List<double> hitboxSizeDivider;
-  final int runSpeedMultiplier;
-  final int idlePenaltyMultiplier;
-  final int leftBoundaryLimit;
+  Sprites sprites;
+  List<double> position;
+  List<double> size;
+  List<double> hitboxRelation;
+  List<double> hitboxSizeDivider;
+  double runSpeedMultiplier;
+  double idlePenaltyMultiplier;
+  double leftBoundaryLimit;
 
   Player({
-    required this.spriteUrl,
-    required this.spriteSectionSize,
+    required this.sprites,
     required this.position,
     required this.size,
     required this.hitboxRelation,
@@ -149,10 +166,9 @@ class Player {
   });
 
   factory Player.fromJson(Map<String, dynamic> json) => Player(
-    spriteUrl: SpriteUrl.fromJson(json["spriteUrl"]),
-    spriteSectionSize: List<int>.from(json["spriteSectionSize"].map((x) => x)),
-    position: List<int>.from(json["position"].map((x) => x)),
-    size: List<int>.from(json["size"].map((x) => x)),
+    sprites: Sprites.fromJson(json["sprites"]),
+    position: List<double>.from(json["position"].map((x) => x)),
+    size: List<double>.from(json["size"].map((x) => x)),
     hitboxRelation: List<double>.from(json["hitboxRelation"].map((x) => x?.toDouble())),
     hitboxSizeDivider: List<double>.from(json["hitboxSizeDivider"].map((x) => x?.toDouble())),
     runSpeedMultiplier: json["runSpeedMultiplier"],
@@ -161,8 +177,7 @@ class Player {
   );
 
   Map<String, dynamic> toJson() => {
-    "spriteUrl": spriteUrl.toJson(),
-    "spriteSectionSize": List<dynamic>.from(spriteSectionSize.map((x) => x)),
+    "sprites": sprites.toJson(),
     "position": List<dynamic>.from(position.map((x) => x)),
     "size": List<dynamic>.from(size.map((x) => x)),
     "hitboxRelation": List<dynamic>.from(hitboxRelation.map((x) => x)),

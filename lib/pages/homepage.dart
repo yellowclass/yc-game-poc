@@ -1,26 +1,57 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yc_game_poc/models/game_model.dart';
 
-import 'buttons.dart';
-import 'game.dart';
+import '../services/api.dart';
+import 'widgets/buttons.dart';
+import '../components/game_builder.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
-  // final game = FlameGame();
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Stack(
-      alignment: Alignment.bottomLeft,
-      children: [
-        GameWidget(
-          game: TryGame(ref: ref),
-        ),
-        const Buttons(),
-      ],
-    );
-  }
+  ConsumerState createState() => _HomePageState();
 }
 
+class _HomePageState extends ConsumerState<HomePage> {
+  bool loading = true;
+  GameModel? model;
 
+  apiCall() async {
+    model = await Api().getGameModel(1);
+    Future.delayed(Duration.zero).then((value) {
+      setState(() {
+        loading = false;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    apiCall();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return !loading
+        ? Stack(
+            alignment: Alignment.bottomLeft,
+            children: [
+              GameWidget(
+                game: GameBuilder(ref: ref, model: model!),
+              ),
+              const Buttons(),
+            ],
+          )
+        : const Center(
+            child: SizedBox(
+                height: 30,
+                width: 30,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                )),
+          );
+  }
+}

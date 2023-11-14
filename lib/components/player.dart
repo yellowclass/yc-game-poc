@@ -6,14 +6,15 @@ import 'package:flame/sprite.dart';
 import 'package:yc_game_poc/constants/images.dart';
 import 'package:yc_game_poc/providers/providers.dart';
 
-import '../pages/game.dart';
+import '../models/game_model.dart';
+import 'game_builder.dart';
 
-class Player extends SpriteAnimationComponent
-    with HasGameRef<TryGame> {
+class GamePlayer extends SpriteAnimationComponent with HasGameRef<GameBuilder> {
   final WidgetRef ref;
+  final Player player;
 
-  Player({required this.ref}) : super() {
-    // debugMode = true;
+  GamePlayer({required this.ref, required this.player}) : super() {
+    debugMode = true;
   }
 
   final networkImages = FlameNetworkImages();
@@ -24,66 +25,49 @@ class Player extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
-    SpriteSheet spriteRun = SpriteSheet(
-        image: await networkImages.load(ImagesSwordsman.run),
-        srcSize: Vector2(128, 128));
-    SpriteSheet spriteIdle = SpriteSheet(
-        image: await networkImages.load(ImagesSwordsman.idle),
-        srcSize: Vector2(128, 128));
-    SpriteSheet spriteWalk = SpriteSheet(
-        image: await networkImages.load(ImagesSwordsman.walk),
-        srcSize: Vector2(128, 128));
-    animationIdle = spriteIdle.createAnimation(row: 0, stepTime: 0.1);
-    animationRun = spriteRun.createAnimation(row: 0, stepTime: 0.1);
-    animationWalk = spriteWalk.createAnimation(row: 0, stepTime: 0.1);
+    animationRun = SpriteSheet(
+            image: await networkImages.load(player.sprites.run.url),
+            srcSize: Vector2(player.sprites.run.spriteSectionSize[0],
+                player.sprites.run.spriteSectionSize[1]))
+        .createAnimation(row: 0, stepTime: player.sprites.run.stepTime);
+    animationIdle = SpriteSheet(
+            image: await networkImages.load(player.sprites.idle.url),
+            srcSize: Vector2(player.sprites.idle.spriteSectionSize[0],
+                player.sprites.idle.spriteSectionSize[1]))
+        .createAnimation(row: 0, stepTime: player.sprites.idle.stepTime);
+    animationWalk = SpriteSheet(
+            image: await networkImages.load(player.sprites.walk.url),
+            srcSize: Vector2(player.sprites.walk.spriteSectionSize[0],
+                player.sprites.walk.spriteSectionSize[1]))
+        .createAnimation(row: 0, stepTime: player.sprites.walk.stepTime);
 
     animation = animationIdle;
-    position = Vector2(0, 110);
-    size = Vector2.all(200);
+    position = Vector2(player.position[0], player.position[1]);
+    size = Vector2(player.size[0], player.size[1]);
+
     add(RectangleHitbox.relative(
-      Vector2(0.5, 0.6),
-      parentSize: size, position: Vector2(size.y / 4, size.y / 2.5),
-      // anchor: Anchor.bottomCenter
+      Vector2(player.hitboxRelation[0], player.hitboxRelation[1]),
+      parentSize: size,
+      position: Vector2(size.x / player.hitboxSizeDivider[0],
+          size.y / player.hitboxSizeDivider[1]),
     ));
-    // gameRef.camera.follow(this);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
     int direction = ref.read(directionProvider);
-    bool flipped = ref.read(flippedProvider);
-    // if (flipped != isFlipped) {
-    //   flipHorizontallyAroundCenter();
-    //   isFlipped = flipped;
-    // }
     if (direction > 0) {
       animation = animationRun;
-      position.x += dt * 70;
+      position.x += dt * player.runSpeedMultiplier;
     }
-    // if (direction < 0) {
-    //   animation = animationRun;
-    //   position.x -= dt * 100;
-    // }
     if (direction == 0) {
-      if(position.x < -20 ) {
+      if (position.x < player.leftBoundaryLimit) {
         animation = animationWalk;
       } else {
         animation = animationIdle;
-        position.x -= dt * 50;
-
+        position.x += dt * player.idlePenaltyMultiplier;
       }
     }
   }
-
-
-
-// @override
-// void onCollisionEnd(PositionComponent other) {
-//   super.onCollisionEnd(other);
-//   if (isColliding) {
-//     print('23232s');
-//     remove(this);
-//   }
-// }
 }
