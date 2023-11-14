@@ -18,17 +18,21 @@ class GameBuilder extends FlameGame with HasCollisionDetection {
 
   @override
   Future<void> onLoad() async {
-    add(SpriteComponent.fromImage(
-      await networkImages.load(
-        model.background,
-      ),
-      size: size,
-    ));
+    if (model.background != '') {
+      add(SpriteComponent.fromImage(
+        await networkImages.load(
+          model.background,
+        ),
+        size: size,
+      ));
+    }
 
     add(await loadParallaxComponent(
         model.parallax.layers.map((layer) => ParallaxImageData(layer)).toList(),
-        baseVelocity: Vector2(1, 0),
-        velocityMultiplierDelta: Vector2(1.635, 0)));
+        baseVelocity: Vector2(
+            model.parallax.baseVelocity[0], model.parallax.baseVelocity[1]),
+        velocityMultiplierDelta: Vector2(model.parallax.velocityMultiplier[0],
+            model.parallax.velocityMultiplier[1])));
 
     for (var obstacle in model.obstacles) {
       add(GameObstacle(ref: ref, obstacle: obstacle));

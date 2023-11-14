@@ -39,16 +39,9 @@ class _HomePageState extends ConsumerState<HomePage> {
         ? Stack(
             alignment: Alignment.bottomLeft,
             children: [
-              Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(model!.background),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  child: GameWidget(
-                    game: GameBuilder(ref: ref, model: model!),
-                  )),
+              GameWidget(
+                game: GameBuilder(ref: ref, model: model!),
+              ),
               const Buttons(),
             ],
           )
