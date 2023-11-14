@@ -1,8 +1,9 @@
 import 'package:flame/components.dart';
 import 'package:flame/parallax.dart';
+import 'package:flame_network_assets/flame_network_assets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flame/game.dart';
-import 'package:yc_game_poc/components/player.dart';
+import 'package:yc_game_poc/game_components/player.dart';
 
 import '../models/game_model.dart';
 import 'obstacle.dart';
@@ -13,11 +14,19 @@ class GameBuilder extends FlameGame with HasCollisionDetection {
 
   GameBuilder({required this.ref, required this.model});
 
+  final networkImages = FlameNetworkImages();
+
   @override
   Future<void> onLoad() async {
+    add(SpriteComponent.fromImage(
+      await networkImages.load(
+        model.background,
+      ),
+      size: size,
+    ));
 
     add(await loadParallaxComponent(
-        model.parallax.layers.map((e) => ParallaxImageData(e)).toList(),
+        model.parallax.layers.map((layer) => ParallaxImageData(layer)).toList(),
         baseVelocity: Vector2(1, 0),
         velocityMultiplierDelta: Vector2(1.635, 0)));
 

@@ -5,7 +5,7 @@ import 'package:yc_game_poc/models/game_model.dart';
 
 import '../services/api.dart';
 import 'widgets/buttons.dart';
-import '../components/game_builder.dart';
+import '../game_components/game_builder.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -39,9 +39,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         ? Stack(
             alignment: Alignment.bottomLeft,
             children: [
-              GameWidget(
-                game: GameBuilder(ref: ref, model: model!),
-              ),
+              Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(model!.background),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: GameWidget(
+                    game: GameBuilder(ref: ref, model: model!),
+                  )),
               const Buttons(),
             ],
           )
